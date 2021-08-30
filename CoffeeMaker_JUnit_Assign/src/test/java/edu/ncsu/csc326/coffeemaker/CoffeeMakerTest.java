@@ -18,7 +18,11 @@
  */
 package edu.ncsu.csc326.coffeemaker;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+
+import java.beans.Transient;
+
+import javax.crypto.AEADBadTagException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +58,6 @@ public class CoffeeMakerTest {
 	@Before
 	public void setUp() throws RecipeException {
 		coffeeMaker = new CoffeeMaker();
-		
 		//Set up for r1
 		recipe1 = new Recipe();
 		recipe1.setName("Coffee");
@@ -131,5 +134,113 @@ public class CoffeeMakerTest {
 		coffeeMaker.addRecipe(recipe1);
 		assertEquals(25, coffeeMaker.makeCoffee(0, 75));
 	}
+
+	/**
+	 * Coffee maker can only contains 3 recipes at most(according to the requirement)
+	 * so when we add recipe more than 3 we should get exception.
+	 */
+	@Test(expected = RecipeException.class)
+	public void testExceedAddRecipe() {
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.addRecipe(recipe2);
+		coffeeMaker.addRecipe(recipe3);
+		coffeeMaker.addRecipe(recipe4);
+	}
+
+	/**
+	 * Given a coffee maker with the default inventory
+	 * When we add positive value to inventory
+	 * We shouldn't get any exception.
+	 */
+	@Test
+	public void testAddPositiveInventory() throws InventoryException {
+		coffeeMaker.addInventory("5", "5", "5", "5");
+	}
+
+	/**
+	 * Given a coffee maker with the default inventory
+	 * When we add ingredient in to the inventory,
+	 * The amount of ingredient in the inventory should add up too.
+	 */
+	@Test
+	public void testAddAmountInventory() throws InventoryException {
+		coffeeMaker.addInventory("5", "5", "0", "5");
+		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[1].split("\n")[0]);
+		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[2].split("\n")[0]);
+		assertEquals("15", coffeeMaker.checkInventory().toString().split(" ")[3].split("\n")[0]);
+		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[4].split("\n")[0]);
+		
+	}
+
+	/**
+	 * Given a coffee maker with the default inventory
+	 * When we make a coffee,
+	 * The amount of ingredient in the inventory should decrease according to the recipe.
+	 */
+	@Test
+	public void testInventoryReduce() throws InventoryException{
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.makeCoffee(0, 50);
+		assertEquals("17", coffeeMaker.checkInventory().toString().split(" ")[1].split("\n")[0]);
+		assertEquals("14", coffeeMaker.checkInventory().toString().split(" ")[2].split("\n")[0]);
+		assertEquals("14", coffeeMaker.checkInventory().toString().split(" ")[3].split("\n")[0]);
+		assertEquals("15", coffeeMaker.checkInventory().toString().split(" ")[4].split("\n")[0]);
+		
+	}
+
+	/**
+	 * When we delete a recipe the function must return the name of the
+	 * recipe we want to delete.
+	 */
+	@Test
+	public void testDeleteRecipe(){
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals("Coffee", coffeeMaker.deleteRecipe(0));
+	}
+
+	/**
+	 * When we delete a non-existant recipe the function must null
+	 */
+	@Test
+	public void testDeleteNotExistRecipe(){
+		assertNull(coffeeMaker.deleteRecipe(0));
+	}
+
+	/**
+	 * When we add a recipe, the recipe name should be in recipe array.
+	 */
+	@Test
+	public void testAddRecipe(){
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals(coffeeMaker.getRecipes()[0].toString(), "Coffee");
+	}
+
+	/**
+	 * When we add a already exist recipe, the function should
+	 * return false.
+	 */
+	@Test
+	public void testAddExistRecipe(){
+		coffeeMaker.addRecipe(recipe1);
+		assertFalse(coffeeMaker.addRecipe(recipe1));
+	}
+
+
+	/**
+	 * When we make a coffee from recipe, the changes that customer receive
+	 * should return a correct amount of money.
+	 */
+	@Test
+	public void testFullOrderCoffee(){
+		coffeeMaker.addRecipe(recipe1);
+		coffeeMaker.addRecipe(recipe2);
+		coffeeMaker.addRecipe(recipe3);
+		assertEquals(30, coffeeMaker.makeCoffee(0, 80));// 50$ recipe > 30$ changes
+		assertEquals(80, coffeeMaker.makeCoffee(1, 80));// not enough ingredient(return full money).
+		assertEquals(80, coffeeMaker.makeCoffee(2, 80));// not enough money(return full money).
+
+	}
+
+	
 
 }
