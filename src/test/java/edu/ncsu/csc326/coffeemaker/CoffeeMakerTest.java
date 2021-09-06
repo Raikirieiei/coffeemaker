@@ -283,18 +283,5 @@ public class CoffeeMakerTest {
 		coffeeMaker.addInventory("0", "0", "0", "a");
 	}
 
-	// @Test
-	// public void testNotEnoughIngredients() throws InventoryException{
-	// 	coffeeMaker.addRecipe(recipe3);
-	// 	assertEquals(120, coffeeMaker.makeCoffee(0, 120));// not enough coffee(return full money).
-	// 	coffeeMaker.addInventory("50", "0", "0", "0");
-	// 	assertEquals(120, coffeeMaker.makeCoffee(0, 120));// not enough milk(return full money).
-	// 	coffeeMaker.addInventory("0", "50", "0", "0");
-	// 	assertEquals(80, coffeeMaker.makeCoffee(0, 80));// not enough sugar(return full money).
-	// 	coffeeMaker.addInventory("0", "0", "0", "50");
-	// 	assertEquals(80, coffeeMaker.makeCoffee(0, 80));// not enough chocolate(return full money).
-		
-
-	// }
 
 }
