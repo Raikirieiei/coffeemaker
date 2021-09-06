@@ -1,4 +1,4 @@
-/*
+/** 
  * Copyright (c) 2009,  Sarah Heckman, Laurie Williams, Dright Ho
  * All Rights Reserved.
  * 

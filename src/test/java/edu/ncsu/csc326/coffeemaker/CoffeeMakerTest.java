@@ -79,17 +79,17 @@ public class CoffeeMakerTest {
 		//Set up for r3
 		recipe3 = new Recipe();
 		recipe3.setName("Latte");
-		recipe3.setAmtChocolate("0");
-		recipe3.setAmtCoffee("3");
-		recipe3.setAmtMilk("3");
-		recipe3.setAmtSugar("1");
+		recipe3.setAmtChocolate("50");
+		recipe3.setAmtCoffee("50");
+		recipe3.setAmtMilk("50");
+		recipe3.setAmtSugar("20");
 		recipe3.setPrice("100");
 		
 		//Set up for r4
 		recipe4 = new Recipe();
 		recipe4.setName("Hot Chocolate");
-		recipe4.setAmtChocolate("4");
-		recipe4.setAmtCoffee("0");
+		recipe4.setAmtChocolate("1");
+		recipe4.setAmtCoffee("1");
 		recipe4.setAmtMilk("1");
 		recipe4.setAmtSugar("1");
 		recipe4.setPrice("65");
@@ -147,15 +147,6 @@ public class CoffeeMakerTest {
 		coffeeMaker.addRecipe(recipe4);
 	}
 
-	/**
-	 * Given a coffee maker with the default inventory
-	 * When we add positive value to inventory
-	 * We shouldn't get any exception.
-	 */
-	@Test
-	public void testAddPositiveInventory() throws InventoryException {
-		coffeeMaker.addInventory("5", "5", "5", "5");
-	}
 
 	/**
 	 * Given a coffee maker with the default inventory
@@ -164,10 +155,10 @@ public class CoffeeMakerTest {
 	 */
 	@Test
 	public void testAddAmountInventory() throws InventoryException {
-		coffeeMaker.addInventory("5", "5", "0", "5");
+		coffeeMaker.addInventory("5", "5", "5", "5");
 		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[1].split("\n")[0]);
 		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[2].split("\n")[0]);
-		assertEquals("15", coffeeMaker.checkInventory().toString().split(" ")[3].split("\n")[0]);
+		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[3].split("\n")[0]);
 		assertEquals("20", coffeeMaker.checkInventory().toString().split(" ")[4].split("\n")[0]);
 		
 	}
@@ -231,16 +222,79 @@ public class CoffeeMakerTest {
 	 * should return a correct amount of money.
 	 */
 	@Test
-	public void testFullOrderCoffee(){
+	public void testFullOrderCoffee() throws InventoryException{
 		coffeeMaker.addRecipe(recipe1);
 		coffeeMaker.addRecipe(recipe2);
 		coffeeMaker.addRecipe(recipe3);
 		assertEquals(30, coffeeMaker.makeCoffee(0, 80));// 50$ recipe > 30$ changes
-		assertEquals(80, coffeeMaker.makeCoffee(1, 80));// not enough ingredient(return full money).
+		assertEquals(80, coffeeMaker.makeCoffee(1, 80));// not enough chocolate(return full money).
 		assertEquals(80, coffeeMaker.makeCoffee(2, 80));// not enough money(return full money).
-
+		assertEquals(120, coffeeMaker.makeCoffee(2, 120));// not enough coffee(return full money).
+		coffeeMaker.addInventory("50", "0", "0", "0");
+		assertEquals(120, coffeeMaker.makeCoffee(2, 120));// not enough milk(return full money).
+		coffeeMaker.addInventory("0", "50", "0", "0");
+		assertEquals(80, coffeeMaker.makeCoffee(2, 80));// not enough sugar(return full money).
+		assertEquals(80, coffeeMaker.makeCoffee(3, 80));// null recipe
 	}
 
-	
+	/**
+	 * When we edit recipe it should return name of the recipe that we want
+	 * to edit.
+	 */
+	@Test
+	public void testEditRecipe(){
+		coffeeMaker.addRecipe(recipe1);
+		assertEquals("Coffee", coffeeMaker.editRecipe(1, recipe1));
+	}
+
+	/**
+	 * When we edit add coffee with alphabet letter,
+	 * Program should return InventoryException.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddAlphabetCoffee() throws InventoryException{
+		coffeeMaker.addInventory("a", "0", "0", "0");
+	}
+
+	/**
+	 * When we edit add milk with alphabet letter,
+	 * Program should return InventoryException.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddAlphabetMilk() throws InventoryException{
+		coffeeMaker.addInventory("0", "a", "0", "0");
+	}
+
+	/**
+	 * When we edit add sugar with alphabet letter,
+	 * Program should return InventoryException.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddAlphabetSugar() throws InventoryException{
+		coffeeMaker.addInventory("0", "0", "a", "0");
+	}
+
+	/**
+	 * When we edit add chocolate with alphabet letter,
+	 * Program should return InventoryException.
+	 */
+	@Test(expected = InventoryException.class)
+	public void testAddAlphabetChocolate() throws InventoryException{
+		coffeeMaker.addInventory("0", "0", "0", "a");
+	}
+
+	// @Test
+	// public void testNotEnoughIngredients() throws InventoryException{
+	// 	coffeeMaker.addRecipe(recipe3);
+	// 	assertEquals(120, coffeeMaker.makeCoffee(0, 120));// not enough coffee(return full money).
+	// 	coffeeMaker.addInventory("50", "0", "0", "0");
+	// 	assertEquals(120, coffeeMaker.makeCoffee(0, 120));// not enough milk(return full money).
+	// 	coffeeMaker.addInventory("0", "50", "0", "0");
+	// 	assertEquals(80, coffeeMaker.makeCoffee(0, 80));// not enough sugar(return full money).
+	// 	coffeeMaker.addInventory("0", "0", "0", "50");
+	// 	assertEquals(80, coffeeMaker.makeCoffee(0, 80));// not enough chocolate(return full money).
+		
+
+	// }
 
 }
