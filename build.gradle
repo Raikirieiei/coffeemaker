@@ -84,3 +84,7 @@ jacocoTestReport{
     csv.enabled false
   }
 }
+
+dependencies {
+    testImplementation 'org.mockito:mockito-core:3.+'
+}

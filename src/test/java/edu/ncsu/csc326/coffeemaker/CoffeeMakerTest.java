@@ -19,6 +19,7 @@
 package edu.ncsu.csc326.coffeemaker;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.beans.Transient;
 
@@ -36,17 +37,28 @@ import edu.ncsu.csc326.coffeemaker.exceptions.RecipeException;
  * @author Sarah Heckman
  */
 public class CoffeeMakerTest {
-	
+
+
 	/**
 	 * The object under test.
 	 */
 	private CoffeeMaker coffeeMaker;
+	private CoffeeMaker coffeeMakerMock;
+	private Inventory inventory;
+	private RecipeBook recipeBookMock;
 	
 	// Sample recipes to use in testing.
 	private Recipe recipe1;
 	private Recipe recipe2;
 	private Recipe recipe3;
 	private Recipe recipe4;
+
+	/**
+	 * The stubbed recipe book.
+	 */
+	private RecipeBook recipeBookStub;
+
+	private Recipe [] stubRecipies;
 
 	/**
 	 * Initializes some recipes to test with and the {@link CoffeeMaker} 
@@ -57,6 +69,10 @@ public class CoffeeMakerTest {
 	 */
 	@Before
 	public void setUp() throws RecipeException {
+		recipeBookMock = mock(RecipeBook.class); // mock a concrete class
+		inventory = new Inventory();
+		coffeeMakerMock = new CoffeeMaker(recipeBookMock, inventory);
+
 		coffeeMaker = new CoffeeMaker();
 		//Set up for r1
 		recipe1 = new Recipe();
@@ -93,6 +109,8 @@ public class CoffeeMakerTest {
 		recipe4.setAmtMilk("1");
 		recipe4.setAmtSugar("1");
 		recipe4.setPrice("65");
+
+		stubRecipies = new Recipe [] {recipe1, recipe2, recipe3, null};
 	}
 	
 	
@@ -283,5 +301,28 @@ public class CoffeeMakerTest {
 		coffeeMaker.addInventory("0", "0", "0", "a");
 	}
 
+
+	/**
+	 * When we make a coffee from recipe, the changes that customer receive
+	 * should return a correct amount of money.
+	 * but this time I include Mockito to help with the test.
+	 */
+	@Test
+	public void testFullOrderCoffeeWithMock() throws InventoryException {
+		
+		when(coffeeMakerMock.getRecipes()).thenReturn(stubRecipies);
+		// coffeeMaker.addRecipe(recipe1);
+		// coffeeMaker.addRecipe(recipe2);
+		// coffeeMaker.addRecipe(recipe3);
+		assertEquals(30, coffeeMakerMock.makeCoffee(0, 80));// 50$ recipe > 30$ changes
+		assertEquals(80, coffeeMakerMock.makeCoffee(1, 80));// not enough chocolate(return full money).
+		assertEquals(80, coffeeMakerMock.makeCoffee(2, 80));// not enough money(return full money).
+		assertEquals(120, coffeeMakerMock.makeCoffee(2, 120));// not enough coffee(return full money).
+		coffeeMakerMock.addInventory("50", "0", "0", "0");
+		assertEquals(120, coffeeMakerMock.makeCoffee(2, 120));// not enough milk(return full money).
+		coffeeMakerMock.addInventory("0", "50", "0", "0");
+		assertEquals(80, coffeeMakerMock.makeCoffee(2, 80));// not enough sugar(return full money).
+		assertEquals(80, coffeeMakerMock.makeCoffee(3, 80));// null recipe
+	}
 
 }
